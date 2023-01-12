@@ -1,0 +1,140 @@
+{
+    "Parameters": {
+        "BootstrapVersion": {
+            "Default": "/cdk-bootstrap/hnb659fds/version",
+            "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+            "Type": "AWS::SSM::Parameter::Value<String>"
+        }
+    },
+    "Resources": {
+        "BlobsBucket4E25380C": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-blobs-staging",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "BlobsLogsBucketB52427AB"
+                    }
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "BlobsLogsBucketB52427AB": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-blobs-staging-logs"
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "FilesBucket16450113": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-files-staging",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "FilesLogsBucket47918849"
+                    }
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "FilesLogsBucket47918849": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-files-staging-logs"
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        }
+    },
+    "Rules": {
+        "CheckBootstrapVersion": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Not": [
+                            {
+                                "Fn::Contains": [
+                                    [
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
+                                    ],
+                                    {
+                                        "Ref": "BootstrapVersion"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+                }
+            ]
+        }
+    }
+}
