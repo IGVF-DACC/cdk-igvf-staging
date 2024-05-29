@@ -82,3 +82,23 @@ jobs:
     - name: Run tests
       run: pytest
       working-directory: ./bucket
+
+  test-restricted-bucket:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt -r requirements-dev.txt
+      working-directory: ./restricted-bucket
+    - name: Run tests
+      run: pytest
+      working-directory: ./restricted-bucket
