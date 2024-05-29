@@ -33,7 +33,8 @@ class RestrictedBucketAccessPolicies(Stack):
             sid='AllowReadFromRestrictedFilesBuckets',
             resources=[
                 self.bucket_storage.restricted_files_bucket.bucket_arn,
-                self.bucket_storage.restricted_files_bucket.arn_for_objects('*'),
+                self.bucket_storage.restricted_files_bucket.arn_for_objects(
+                    '*'),
             ],
             actions=[
                 's3:GetObjectVersion',
@@ -48,7 +49,8 @@ class RestrictedBucketAccessPolicies(Stack):
             sid='AllowReadAndWriteToRestrictedFilesBucket',
             resources=[
                 self.bucket_storage.restricted_files_bucket.bucket_arn,
-                self.bucket_storage.restricted_files_bucket.arn_for_objects('*'),
+                self.bucket_storage.restricted_files_bucket.arn_for_objects(
+                    '*'),
             ],
             actions=[
                 's3:PutObject',
