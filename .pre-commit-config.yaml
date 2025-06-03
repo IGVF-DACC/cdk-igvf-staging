@@ -14,5 +14,5 @@ repos:
         exclude: ^(notification|network|bucket|restricted-bucket|waf)/tests/snapshots
       - id: pretty-format-json
         args: ['--autofix', '--no-sort-keys', '--indent=4', '--no-ensure-ascii']
-        exclude: ^(notification|network|cleaner|bucket|restricted-bucket|waf)/tests/snapshots|waf/waf/rules.py
+        exclude: ^(notification|network|bucket|restricted-bucket|waf)/tests/snapshots|waf/waf/rules.py
       - id: check-yaml
