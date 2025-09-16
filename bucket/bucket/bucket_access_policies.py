@@ -21,6 +21,10 @@ READ_ACCESSIBLE_PRODUCTION_RESOURCES = [
     'arn:aws:s3:::igvf-blobs/*',
     'arn:aws:s3:::igvf-files',
     'arn:aws:s3:::igvf-files/*',
+    'arn:aws:s3:::igvf-public',
+    'arn:aws:s3:::igvf-public/*',
+    'arn:aws:s3:::igvf-private',
+    'arn:aws:s3:::igvf-private/*',
 ]
 
 
@@ -44,6 +48,10 @@ class BucketAccessPolicies(Stack):
                 self.bucket_storage.files_bucket.arn_for_objects('*'),
                 self.bucket_storage.blobs_bucket.bucket_arn,
                 self.bucket_storage.blobs_bucket.arn_for_objects('*'),
+                self.bucket_storage.public_files_bucket.bucket_arn,
+                self.bucket_storage.public_files_bucket.arn_for_objects('*'),
+                self.bucket_storage.private_files_bucket.bucket_arn,
+                self.bucket_storage.private_files_bucket.arn_for_objects('*'),
             ] + READ_ACCESSIBLE_PRODUCTION_RESOURCES,
             actions=[
                 's3:GetObjectVersion',
