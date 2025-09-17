@@ -123,6 +123,57 @@
             "Type": "AWS::S3::Bucket",
             "UpdateReplacePolicy": "Retain"
         },
+        "FilesBucketPolicy8CA19688": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "FilesBucket16450113"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:GetBucketAcl",
+                                "s3:GetBucketLocation",
+                                "s3:GetObject",
+                                "s3:GetObjectTagging",
+                                "s3:GetObjectVersion",
+                                "s3:ListBucket",
+                                "s3:PutObjectTagging"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": "arn:aws:iam::407227577691:user/igvf-files-transfer"
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "FilesBucket16450113",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "FilesBucket16450113",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadFromFilesBucket"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
         "FilesLogsBucket47918849": {
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -197,6 +248,79 @@
             },
             "Type": "AWS::S3::Bucket",
             "UpdateReplacePolicy": "Retain"
+        },
+        "PrivateFilesBucketPolicy7486E1F2": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "PrivateFilesBucket3CE7300C"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:DeleteObject",
+                                "s3:GetBucketAcl",
+                                "s3:GetBucketLocation",
+                                "s3:GetObject",
+                                "s3:GetObjectTagging",
+                                "s3:GetObjectVersion",
+                                "s3:ListBucket",
+                                "s3:PutObject",
+                                "s3:PutObjectTagging"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": "arn:aws:iam::407227577691:user/igvf-files-transfer"
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "PublicFilesBucket96DCF059",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "PublicFilesBucket96DCF059",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "PrivateFilesBucket3CE7300C",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "PrivateFilesBucket3CE7300C",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadAndWriteFromPublicAndPrivateFilesBuckets"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
         },
         "PrivateFilesLogsBucket5DB3F464": {
             "DeletionPolicy": "Retain",
@@ -319,6 +443,66 @@
                                 }
                             ],
                             "Sid": "AllowReadFromPublicFilesBucket"
+                        },
+                        {
+                            "Action": [
+                                "s3:DeleteObject",
+                                "s3:GetBucketAcl",
+                                "s3:GetBucketLocation",
+                                "s3:GetObject",
+                                "s3:GetObjectTagging",
+                                "s3:GetObjectVersion",
+                                "s3:ListBucket",
+                                "s3:PutObject",
+                                "s3:PutObjectTagging"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": "arn:aws:iam::407227577691:user/igvf-files-transfer"
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "PublicFilesBucket96DCF059",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "PublicFilesBucket96DCF059",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "PrivateFilesBucket3CE7300C",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "PrivateFilesBucket3CE7300C",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadAndWriteFromPublicAndPrivateFilesBuckets"
                         }
                     ],
                     "Version": "2012-10-17"
