@@ -31,7 +31,8 @@
                             "ExposedHeaders": [
                                 "Content-Length",
                                 "Content-Range",
-                                "Content-Type"
+                                "Content-Type",
+                                "ETag"
                             ],
                             "MaxAge": 3000
                         }
@@ -103,7 +104,8 @@
                             "ExposedHeaders": [
                                 "Content-Length",
                                 "Content-Range",
-                                "Content-Type"
+                                "Content-Type",
+                                "ETag"
                             ],
                             "MaxAge": 3000
                         }
@@ -126,6 +128,209 @@
             "Properties": {
                 "AccessControl": "LogDeliveryWrite",
                 "BucketName": "igvf-files-staging-logs"
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "PrivateFilesBucket3CE7300C": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-private-staging",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type",
+                                "ETag"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "IntelligentTieringRule",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "AbortIncompleteMultipartUploadRule",
+                            "Status": "Enabled"
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "PrivateFilesLogsBucket5DB3F464"
+                    }
+                },
+                "MetricsConfigurations": [
+                    {
+                        "Id": "PrivateFilesBucketMetrics"
+                    }
+                ]
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "PrivateFilesLogsBucket5DB3F464": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-private-staging-logs"
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "PublicFilesBucket96DCF059": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "BucketName": "igvf-public-staging",
+                "CorsConfiguration": {
+                    "CorsRules": [
+                        {
+                            "AllowedHeaders": [
+                                "Accept",
+                                "Origin",
+                                "Range",
+                                "X-Requested-With",
+                                "Cache-Control"
+                            ],
+                            "AllowedMethods": [
+                                "GET",
+                                "HEAD"
+                            ],
+                            "AllowedOrigins": [
+                                "*"
+                            ],
+                            "ExposedHeaders": [
+                                "Content-Length",
+                                "Content-Range",
+                                "Content-Type",
+                                "ETag"
+                            ],
+                            "MaxAge": 3000
+                        }
+                    ]
+                },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "Id": "IntelligentTieringRule",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "AbortIncompleteMultipartUploadRule",
+                            "Status": "Enabled"
+                        }
+                    ]
+                },
+                "LoggingConfiguration": {
+                    "DestinationBucketName": {
+                        "Ref": "PublicFilesLogsBucketE89CC1C9"
+                    }
+                },
+                "MetricsConfigurations": [
+                    {
+                        "Id": "PublicFilesBucketMetrics"
+                    }
+                ],
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicPolicy": false,
+                    "RestrictPublicBuckets": false
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Retain"
+        },
+        "PublicFilesBucketPolicy610153B6": {
+            "Properties": {
+                "Bucket": {
+                    "Ref": "PublicFilesBucket96DCF059"
+                },
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:List*",
+                                "s3:Get*"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": "*"
+                            },
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "PublicFilesBucket96DCF059",
+                                        "Arn"
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::GetAtt": [
+                                                    "PublicFilesBucket96DCF059",
+                                                    "Arn"
+                                                ]
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ],
+                            "Sid": "AllowReadFromPublicFilesBucket"
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                }
+            },
+            "Type": "AWS::S3::BucketPolicy"
+        },
+        "PublicFilesLogsBucketE89CC1C9": {
+            "DeletionPolicy": "Retain",
+            "Properties": {
+                "AccessControl": "LogDeliveryWrite",
+                "BucketName": "igvf-public-staging-logs"
             },
             "Type": "AWS::S3::Bucket",
             "UpdateReplacePolicy": "Retain"

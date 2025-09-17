@@ -1,14 +1,21 @@
 from aws_cdk import App
+from aws_cdk import Duration
 from aws_cdk import Stack
 from aws_cdk import RemovalPolicy
 
 from aws_cdk.aws_iam import AccountPrincipal
+from aws_cdk.aws_iam import AnyPrincipal
 from aws_cdk.aws_iam import ManagedPolicy
 from aws_cdk.aws_iam import PolicyStatement
 
+from aws_cdk.aws_s3 import BlockPublicAccess
 from aws_cdk.aws_s3 import Bucket
+from aws_cdk.aws_s3 import BucketMetrics
 from aws_cdk.aws_s3 import CorsRule
 from aws_cdk.aws_s3 import HttpMethods
+from aws_cdk.aws_s3 import LifecycleRule
+from aws_cdk.aws_s3 import StorageClass
+from aws_cdk.aws_s3 import Transition
 
 from constructs import Construct
 
@@ -18,6 +25,8 @@ from typing import List
 
 BLOBS_BUCKET_NAME = 'igvf-blobs-staging'
 FILES_BUCKET_NAME = 'igvf-files-staging'
+PUBLIC_FILES_BUCKET_NAME = 'igvf-public-staging'
+PRIVATE_FILES_BUCKET_NAME = 'igvf-private-staging'
 
 
 BROWSER_UPLOAD_CORS = CorsRule(
@@ -62,6 +71,7 @@ CORS = CorsRule(
         'Content-Length',
         'Content-Range',
         'Content-Type',
+        'ETag',
     ],
     max_age=3000,
 )
@@ -129,4 +139,103 @@ class BucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.files_logs_bucket,
             versioned=True,
+        )
+
+        self.public_files_logs_bucket = Bucket(
+            self,
+            'PublicFilesLogsBucket',
+            bucket_name=f'{PUBLIC_FILES_BUCKET_NAME}-logs',
+            removal_policy=RemovalPolicy.RETAIN,
+        )
+
+        self.private_files_logs_bucket = Bucket(
+            self,
+            'PrivateFilesLogsBucket',
+            bucket_name=f'{PRIVATE_FILES_BUCKET_NAME}-logs',
+            removal_policy=RemovalPolicy.RETAIN,
+        )
+
+        self.private_files_bucket = Bucket(
+            self,
+            'PrivateFilesBucket',
+            bucket_name=f'{PRIVATE_FILES_BUCKET_NAME}',
+            removal_policy=RemovalPolicy.RETAIN,
+            cors=[
+                CORS
+            ],
+            metrics=[
+                BucketMetrics(
+                    id='PrivateFilesBucketMetrics',
+                )
+            ],
+            lifecycle_rules=[
+                LifecycleRule(
+                    id='IntelligentTieringRule',
+                    transitions=[
+                        Transition(
+                            storage_class=StorageClass.INTELLIGENT_TIERING,
+                            transition_after=Duration.days(0),
+                        )
+                    ]
+                ),
+                LifecycleRule(
+                    id='AbortIncompleteMultipartUploadRule',
+                    abort_incomplete_multipart_upload_after=Duration.days(7),
+                )
+            ],
+            server_access_logs_bucket=self.private_files_logs_bucket,
+            versioned=False,
+        )
+
+        self.public_files_bucket = Bucket(
+            self,
+            'PublicFilesBucket',
+            bucket_name=f'{PUBLIC_FILES_BUCKET_NAME}',
+            removal_policy=RemovalPolicy.RETAIN,
+            cors=[
+                CORS
+            ],
+            block_public_access=BlockPublicAccess(
+                block_public_policy=False,
+                restrict_public_buckets=False,
+            ),
+            metrics=[
+                BucketMetrics(
+                    id='PublicFilesBucketMetrics',
+                )
+            ],
+            lifecycle_rules=[
+                LifecycleRule(
+                    id='IntelligentTieringRule',
+                    transitions=[
+                        Transition(
+                            storage_class=StorageClass.INTELLIGENT_TIERING,
+                            transition_after=Duration.days(0),
+                        )
+                    ]
+                ),
+                LifecycleRule(
+                    id='AbortIncompleteMultipartUploadRule',
+                    abort_incomplete_multipart_upload_after=Duration.days(7),
+                )
+            ],
+            server_access_logs_bucket=self.public_files_logs_bucket,
+            versioned=True,
+        )
+
+        self.public_files_bucket_policy_statement = PolicyStatement(
+            sid='AllowReadFromPublicFilesBucket',
+            principals=[AnyPrincipal()],
+            resources=[
+                self.public_files_bucket.bucket_arn,
+                self.public_files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:List*',
+                's3:Get*',
+            ]
+        )
+
+        self.public_files_bucket.add_to_resource_policy(
+            self.public_files_bucket_policy_statement,
         )

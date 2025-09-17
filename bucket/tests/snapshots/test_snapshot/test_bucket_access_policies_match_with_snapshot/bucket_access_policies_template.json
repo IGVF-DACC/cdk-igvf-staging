@@ -52,10 +52,42 @@
                                         ]
                                     ]
                                 },
+                                {
+                                    "Fn::ImportValue": "BucketStorage:ExportsOutputFnGetAttPublicFilesBucket96DCF059ArnFA0F15CA"
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::ImportValue": "BucketStorage:ExportsOutputFnGetAttPublicFilesBucket96DCF059ArnFA0F15CA"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::ImportValue": "BucketStorage:ExportsOutputFnGetAttPrivateFilesBucket3CE7300CArn042F3D3B"
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            {
+                                                "Fn::ImportValue": "BucketStorage:ExportsOutputFnGetAttPrivateFilesBucket3CE7300CArn042F3D3B"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                },
                                 "arn:aws:s3:::igvf-blobs",
                                 "arn:aws:s3:::igvf-blobs/*",
                                 "arn:aws:s3:::igvf-files",
-                                "arn:aws:s3:::igvf-files/*"
+                                "arn:aws:s3:::igvf-files/*",
+                                "arn:aws:s3:::igvf-public",
+                                "arn:aws:s3:::igvf-public/*",
+                                "arn:aws:s3:::igvf-private",
+                                "arn:aws:s3:::igvf-private/*"
                             ],
                             "Sid": "AllowReadFromFilesAndBlobsBuckets"
                         }
