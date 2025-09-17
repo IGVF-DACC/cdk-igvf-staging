@@ -5,6 +5,7 @@ from aws_cdk import RemovalPolicy
 
 from aws_cdk.aws_iam import AccountPrincipal
 from aws_cdk.aws_iam import AnyPrincipal
+from aws_cdk.aws_iam import ArnPrincipal
 from aws_cdk.aws_iam import ManagedPolicy
 from aws_cdk.aws_iam import PolicyStatement
 
@@ -27,6 +28,8 @@ BLOBS_BUCKET_NAME = 'igvf-blobs-staging'
 FILES_BUCKET_NAME = 'igvf-files-staging'
 PUBLIC_FILES_BUCKET_NAME = 'igvf-public-staging'
 PRIVATE_FILES_BUCKET_NAME = 'igvf-private-staging'
+
+IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 
 
 BROWSER_UPLOAD_CORS = CorsRule(
@@ -238,4 +241,59 @@ class BucketStorage(Stack):
 
         self.public_files_bucket.add_to_resource_policy(
             self.public_files_bucket_policy_statement,
+        )
+
+        self.igvf_transfer_user_principal = ArnPrincipal(
+            IGVF_TRANSFER_USER_ARN)
+
+        self.igvf_transfer_user_read_write_public_private_policy_statement = PolicyStatement(
+            sid='AllowReadAndWriteFromPublicAndPrivateFilesBuckets',
+            principals=[self.igvf_transfer_user_principal],
+            resources=[
+                self.public_files_bucket.bucket_arn,
+                self.public_files_bucket.arn_for_objects('*'),
+                self.private_files_bucket.bucket_arn,
+                self.private_files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:DeleteObject',
+                's3:GetBucketAcl',
+                's3:GetBucketLocation',
+                's3:GetObject',
+                's3:GetObjectTagging',
+                's3:GetObjectVersion',
+                's3:ListBucket',
+                's3:PutObject',
+                's3:PutObjectTagging'
+            ]
+        )
+
+        self.public_files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_read_write_public_private_policy_statement,
+        )
+
+        self.private_files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_read_write_public_private_policy_statement,
+        )
+
+        self.igvf_transfer_user_upload_bucket_policy_statement = PolicyStatement(
+            sid='AllowReadFromFilesBucket',
+            principals=[self.igvf_transfer_user_principal],
+            resources=[
+                self.files_bucket.bucket_arn,
+                self.files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:GetBucketAcl',
+                's3:GetBucketLocation',
+                's3:GetObject',
+                's3:GetObjectTagging',
+                's3:GetObjectVersion',
+                's3:ListBucket',
+                's3:PutObjectTagging'
+            ]
+        )
+
+        self.files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_upload_bucket_policy_statement,
         )
