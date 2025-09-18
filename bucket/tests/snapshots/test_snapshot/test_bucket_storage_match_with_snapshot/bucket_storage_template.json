@@ -275,26 +275,6 @@
                             "Resource": [
                                 {
                                     "Fn::GetAtt": [
-                                        "PublicFilesBucket96DCF059",
-                                        "Arn"
-                                    ]
-                                },
-                                {
-                                    "Fn::Join": [
-                                        "",
-                                        [
-                                            {
-                                                "Fn::GetAtt": [
-                                                    "PublicFilesBucket96DCF059",
-                                                    "Arn"
-                                                ]
-                                            },
-                                            "/*"
-                                        ]
-                                    ]
-                                },
-                                {
-                                    "Fn::GetAtt": [
                                         "PrivateFilesBucket3CE7300C",
                                         "Arn"
                                     ]
@@ -314,7 +294,7 @@
                                     ]
                                 }
                             ],
-                            "Sid": "AllowReadAndWriteFromPublicAndPrivateFilesBuckets"
+                            "Sid": "AllowReadAndWriteFromPrivateFilesBucket"
                         }
                     ],
                     "Version": "2012-10-17"
@@ -480,29 +460,9 @@
                                             "/*"
                                         ]
                                     ]
-                                },
-                                {
-                                    "Fn::GetAtt": [
-                                        "PrivateFilesBucket3CE7300C",
-                                        "Arn"
-                                    ]
-                                },
-                                {
-                                    "Fn::Join": [
-                                        "",
-                                        [
-                                            {
-                                                "Fn::GetAtt": [
-                                                    "PrivateFilesBucket3CE7300C",
-                                                    "Arn"
-                                                ]
-                                            },
-                                            "/*"
-                                        ]
-                                    ]
                                 }
                             ],
-                            "Sid": "AllowReadAndWriteFromPublicAndPrivateFilesBuckets"
+                            "Sid": "AllowReadAndWriteFromPublicFilesBucket"
                         }
                     ],
                     "Version": "2012-10-17"

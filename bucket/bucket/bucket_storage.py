@@ -246,12 +246,30 @@ class BucketStorage(Stack):
         self.igvf_transfer_user_principal = ArnPrincipal(
             IGVF_TRANSFER_USER_ARN)
 
-        self.igvf_transfer_user_read_write_public_private_policy_statement = PolicyStatement(
-            sid='AllowReadAndWriteFromPublicAndPrivateFilesBuckets',
+        self.igvf_transfer_user_read_write_public_policy_statement = PolicyStatement(
+            sid='AllowReadAndWriteFromPublicFilesBucket',
             principals=[self.igvf_transfer_user_principal],
             resources=[
                 self.public_files_bucket.bucket_arn,
                 self.public_files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:DeleteObject',
+                's3:GetBucketAcl',
+                's3:GetBucketLocation',
+                's3:GetObject',
+                's3:GetObjectTagging',
+                's3:GetObjectVersion',
+                's3:ListBucket',
+                's3:PutObject',
+                's3:PutObjectTagging'
+            ]
+        )
+
+        self.igvf_transfer_user_read_write_private_policy_statement = PolicyStatement(
+            sid='AllowReadAndWriteFromPrivateFilesBucket',
+            principals=[self.igvf_transfer_user_principal],
+            resources=[
                 self.private_files_bucket.bucket_arn,
                 self.private_files_bucket.arn_for_objects('*'),
             ],
@@ -268,12 +286,12 @@ class BucketStorage(Stack):
             ]
         )
 
-        self.public_files_bucket.add_to_resource_policy(
-            self.igvf_transfer_user_read_write_public_private_policy_statement,
+        self.private_files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_read_write_private_policy_statement,
         )
 
-        self.private_files_bucket.add_to_resource_policy(
-            self.igvf_transfer_user_read_write_public_private_policy_statement,
+        self.public_files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_read_write_public_policy_statement,
         )
 
         self.igvf_transfer_user_upload_bucket_policy_statement = PolicyStatement(
