@@ -294,7 +294,7 @@
                                     ]
                                 }
                             ],
-                            "Sid": "AllowReadAndWriteFromPrivateFilesBucket"
+                            "Sid": "AllowIgvfTransferUserWritePrivateBucket"
                         }
                     ],
                     "Version": "2012-10-17"
@@ -462,7 +462,7 @@
                                     ]
                                 }
                             ],
-                            "Sid": "AllowReadAndWriteFromPublicFilesBucket"
+                            "Sid": "AllowIgvfTransferUserWritePublicBucket"
                         }
                     ],
                     "Version": "2012-10-17"
