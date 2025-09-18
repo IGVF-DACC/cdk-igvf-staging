@@ -5,6 +5,7 @@ from aws_cdk import RemovalPolicy
 
 from aws_cdk.aws_iam import AccountPrincipal
 from aws_cdk.aws_iam import AnyPrincipal
+from aws_cdk.aws_iam import ArnPrincipal
 from aws_cdk.aws_iam import ManagedPolicy
 from aws_cdk.aws_iam import PolicyStatement
 
@@ -27,6 +28,8 @@ BLOBS_BUCKET_NAME = 'igvf-blobs-staging'
 FILES_BUCKET_NAME = 'igvf-files-staging'
 PUBLIC_FILES_BUCKET_NAME = 'igvf-public-staging'
 PRIVATE_FILES_BUCKET_NAME = 'igvf-private-staging'
+
+IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 
 
 BROWSER_UPLOAD_CORS = CorsRule(
@@ -97,6 +100,30 @@ def generate_read_access_policy_for_bucket(
     )
 
 
+def generate_file_transfer_user_write_policy_for_bucket(
+        *,
+        sid: str,
+        principals: List[AccountPrincipal],
+        resources: List[str]
+) -> PolicyStatement:
+    return PolicyStatement(
+        sid=sid,
+        principals=principals,
+        resources=resources,
+        actions=[
+            's3:DeleteObject',
+            's3:GetBucketAcl',
+            's3:GetBucketLocation',
+            's3:GetObject',
+            's3:GetObjectTagging',
+            's3:GetObjectVersion',
+            's3:ListBucket',
+            's3:PutObject',
+            's3:PutObjectTagging',
+        ]
+    )
+
+
 class BucketStorage(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs: Any) -> None:
@@ -141,13 +168,6 @@ class BucketStorage(Stack):
             versioned=True,
         )
 
-        self.public_files_logs_bucket = Bucket(
-            self,
-            'PublicFilesLogsBucket',
-            bucket_name=f'{PUBLIC_FILES_BUCKET_NAME}-logs',
-            removal_policy=RemovalPolicy.RETAIN,
-        )
-
         self.private_files_logs_bucket = Bucket(
             self,
             'PrivateFilesLogsBucket',
@@ -185,6 +205,13 @@ class BucketStorage(Stack):
             ],
             server_access_logs_bucket=self.private_files_logs_bucket,
             versioned=False,
+        )
+
+        self.public_files_logs_bucket = Bucket(
+            self,
+            'PublicFilesLogsBucket',
+            bucket_name=f'{PUBLIC_FILES_BUCKET_NAME}-logs',
+            removal_policy=RemovalPolicy.RETAIN,
         )
 
         self.public_files_bucket = Bucket(
@@ -238,4 +265,58 @@ class BucketStorage(Stack):
 
         self.public_files_bucket.add_to_resource_policy(
             self.public_files_bucket_policy_statement,
+        )
+
+        self.igvf_transfer_user_principal = ArnPrincipal(
+            IGVF_TRANSFER_USER_ARN
+        )
+
+        self.public_files_bucket.add_to_resource_policy(
+            generate_file_transfer_user_write_policy_for_bucket(
+                sid='AllowIgvfTransferUserWritePublicBucket',
+                principals=[
+                    self.igvf_transfer_user_principal,
+                ],
+                resources=[
+                    self.public_files_bucket.bucket_arn,
+                    self.public_files_bucket.arn_for_objects('*'),
+                ]
+            )
+        )
+
+        self.private_files_bucket.add_to_resource_policy(
+            generate_file_transfer_user_write_policy_for_bucket(
+                sid='AllowIgvfTransferUserWritePrivateBucket',
+                principals=[
+                    self.igvf_transfer_user_principal,
+                ],
+                resources=[
+                    self.private_files_bucket.bucket_arn,
+                    self.private_files_bucket.arn_for_objects('*'),
+                ]
+            )
+        )
+
+        self.igvf_transfer_user_upload_bucket_policy_statement = PolicyStatement(
+            sid='AllowIgvfTransferUserReadFromUploadBucket',
+            principals=[
+                self.igvf_transfer_user_principal
+            ],
+            resources=[
+                self.files_bucket.bucket_arn,
+                self.files_bucket.arn_for_objects('*'),
+            ],
+            actions=[
+                's3:GetBucketAcl',
+                's3:GetBucketLocation',
+                's3:GetObject',
+                's3:GetObjectTagging',
+                's3:GetObjectVersion',
+                's3:ListBucket',
+                's3:PutObjectTagging'
+            ]
+        )
+
+        self.files_bucket.add_to_resource_policy(
+            self.igvf_transfer_user_upload_bucket_policy_statement,
         )
