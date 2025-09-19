@@ -42,44 +42,6 @@ INTELLIGENT_TIERING_RULE = LifecycleRule(
     ]
 )
 
-ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
-    id='DeleteIncompleteMultipartUploadRule',
-    abort_incomplete_multipart_upload_after=Duration.days(7),
-)
-
-NONCURRENT_VERSION_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='OldVersionsToGlacierTransitionRule',
-    noncurrent_version_transitions=[
-        NoncurrentVersionTransition(
-            storage_class=StorageClass.GLACIER,
-            transition_after=Duration.days(0),
-        )
-    ],
-    noncurrent_version_expiration=Duration.days(90),
-)
-
-TAGGED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='TaggedObjectsGlacierTransitionRule',
-    tag_filters={'send_to_glacier': 'true'},
-    transitions=[
-        Transition(
-            storage_class=StorageClass.GLACIER,
-            transition_after=Duration.days(0),
-        )
-    ]
-)
-
-COPIED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
-    id='CopiedObjectsGlacierTransitionRule',
-    tag_filters={'copied_to': 'open_data_account'},
-    transitions=[
-        Transition(
-            storage_class=StorageClass.GLACIER,
-            transition_after=Duration.days(1),
-        )
-    ]
-)
-
 THIRTY_DAYS_EXPIRATION_RULE = LifecycleRule(
     id='ThirtyDaysExpirationRule',
     expiration=Duration.days(30),
