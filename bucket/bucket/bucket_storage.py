@@ -52,6 +52,28 @@ ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
     abort_incomplete_multipart_upload_after=Duration.days(7),
 )
 
+TAGGED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='TaggedObjectsGlacierTransitionRule',
+    tag_filters={'send_to_glacier': 'true'},
+    transitions=[
+        Transition(
+            storage_class=StorageClass.GLACIER,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+COPIED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='CopiedObjectsGlacierTransitionRule',
+    tag_filters={'copied_to': 'open_data_account'},
+    transitions=[
+        Transition(
+            storage_class=StorageClass.GLACIER,
+            transition_after=Duration.days(1),
+        )
+    ]
+)
+
 BROWSER_UPLOAD_CORS = CorsRule(
     allowed_methods=[
         HttpMethods.GET,
@@ -193,6 +215,8 @@ class BucketStorage(Stack):
             lifecycle_rules=[
                 THIRTY_DAYS_EXPIRATION_RULE,
                 ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
+                TAGGED_OBJECTS_GLACIER_TRANSITION_RULE,
+                COPIED_OBJECTS_GLACIER_TRANSITION_RULE,
             ],
         )
 
