@@ -47,6 +47,11 @@ THIRTY_DAYS_EXPIRATION_RULE = LifecycleRule(
     expiration=Duration.days(30),
 )
 
+ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
+    id='DeleteIncompleteMultipartUploadRule',
+    abort_incomplete_multipart_upload_after=Duration.days(7),
+)
+
 BROWSER_UPLOAD_CORS = CorsRule(
     allowed_methods=[
         HttpMethods.GET,
@@ -163,6 +168,7 @@ class BucketStorage(Stack):
             versioned=True,
             lifecycle_rules=[
                 INTELLIGENT_TIERING_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
             ],
         )
 
@@ -186,6 +192,7 @@ class BucketStorage(Stack):
             versioned=True,
             lifecycle_rules=[
                 THIRTY_DAYS_EXPIRATION_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
             ],
         )
 
@@ -211,6 +218,7 @@ class BucketStorage(Stack):
             ],
             lifecycle_rules=[
                 THIRTY_DAYS_EXPIRATION_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
             ],
             server_access_logs_bucket=self.private_files_logs_bucket,
             versioned=False,
@@ -242,6 +250,7 @@ class BucketStorage(Stack):
             ],
             lifecycle_rules=[
                 THIRTY_DAYS_EXPIRATION_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
             ],
             server_access_logs_bucket=self.public_files_logs_bucket,
             versioned=True,
