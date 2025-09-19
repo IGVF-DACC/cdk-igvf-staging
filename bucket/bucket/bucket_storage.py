@@ -188,10 +188,6 @@ class BucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.blobs_logs_bucket,
             versioned=True,
-            lifecycle_rules=[
-                INTELLIGENT_TIERING_RULE,
-                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
-            ],
         )
 
         self.files_logs_bucket = Bucket(
