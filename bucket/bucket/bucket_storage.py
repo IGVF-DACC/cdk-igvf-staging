@@ -56,7 +56,6 @@ THIRTY_DAYS_EXPIRATION_RULE = LifecycleRule(
 DELETE_FILES_AFTER_30_DAYS = LifecycleRule(
     id='delete-files-after-30-days',
     expiration=Duration.days(30),
-    noncurrent_versions_to_retain=0,
     noncurrent_version_expiration=Duration.days(30),
 )
 
