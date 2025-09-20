@@ -15,6 +15,7 @@ from aws_cdk.aws_s3 import BucketMetrics
 from aws_cdk.aws_s3 import CorsRule
 from aws_cdk.aws_s3 import HttpMethods
 from aws_cdk.aws_s3 import LifecycleRule
+from aws_cdk.aws_s3 import NoncurrentVersionTransition
 from aws_cdk.aws_s3 import StorageClass
 from aws_cdk.aws_s3 import Transition
 
@@ -31,6 +32,54 @@ PRIVATE_FILES_BUCKET_NAME = 'igvf-private-staging'
 
 IGVF_TRANSFER_USER_ARN = 'arn:aws:iam::407227577691:user/igvf-files-transfer'
 
+INTELLIGENT_TIERING_RULE = LifecycleRule(
+    id='move-all-objects-to-intelligent-tiering',
+    transitions=[
+        Transition(
+            storage_class=StorageClass.INTELLIGENT_TIERING,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
+    id='delete-incomplete-multipart-uploads',
+    abort_incomplete_multipart_upload_after=Duration.days(7),
+)
+
+
+THIRTY_DAYS_EXPIRATION_RULE = LifecycleRule(
+    id='expire-object-after-thirty-days',
+    expiration=Duration.days(30),
+)
+
+DELETE_FILES_AFTER_30_DAYS = LifecycleRule(
+    id='delete-files-after-30-days',
+    expiration=Duration.days(30),
+    noncurrent_version_expiration=Duration.days(30),
+)
+
+TAGGED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='send-tagged-objects-to-glacier',
+    tag_filters={'send_to_glacier': 'true'},
+    transitions=[
+        Transition(
+            storage_class=StorageClass.DEEP_ARCHIVE,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+COPIED_OBJECTS_GLACIER_TRANSITION_RULE = LifecycleRule(
+    id='send-objects-copied-to-open-data-account-to-glacier',
+    tag_filters={'copied_to': 'open_data_account'},
+    transitions=[
+        Transition(
+            storage_class=StorageClass.DEEP_ARCHIVE,
+            transition_after=Duration.days(1),
+        )
+    ]
+)
 
 BROWSER_UPLOAD_CORS = CorsRule(
     allowed_methods=[
@@ -166,6 +215,12 @@ class BucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.files_logs_bucket,
             versioned=True,
+            lifecycle_rules=[
+                DELETE_FILES_AFTER_30_DAYS,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
+                TAGGED_OBJECTS_GLACIER_TRANSITION_RULE,
+                COPIED_OBJECTS_GLACIER_TRANSITION_RULE,
+            ],
         )
 
         self.private_files_logs_bucket = Bucket(
@@ -189,19 +244,8 @@ class BucketStorage(Stack):
                 )
             ],
             lifecycle_rules=[
-                LifecycleRule(
-                    id='IntelligentTieringRule',
-                    transitions=[
-                        Transition(
-                            storage_class=StorageClass.INTELLIGENT_TIERING,
-                            transition_after=Duration.days(0),
-                        )
-                    ]
-                ),
-                LifecycleRule(
-                    id='AbortIncompleteMultipartUploadRule',
-                    abort_incomplete_multipart_upload_after=Duration.days(7),
-                )
+                THIRTY_DAYS_EXPIRATION_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
             ],
             server_access_logs_bucket=self.private_files_logs_bucket,
             versioned=False,
@@ -232,19 +276,8 @@ class BucketStorage(Stack):
                 )
             ],
             lifecycle_rules=[
-                LifecycleRule(
-                    id='IntelligentTieringRule',
-                    transitions=[
-                        Transition(
-                            storage_class=StorageClass.INTELLIGENT_TIERING,
-                            transition_after=Duration.days(0),
-                        )
-                    ]
-                ),
-                LifecycleRule(
-                    id='AbortIncompleteMultipartUploadRule',
-                    abort_incomplete_multipart_upload_after=Duration.days(7),
-                )
+                THIRTY_DAYS_EXPIRATION_RULE,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
             ],
             server_access_logs_bucket=self.public_files_logs_bucket,
             versioned=True,
