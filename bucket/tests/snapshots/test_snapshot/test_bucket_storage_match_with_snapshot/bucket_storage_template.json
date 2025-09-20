@@ -115,18 +115,22 @@
                     "Rules": [
                         {
                             "ExpirationInDays": 30,
-                            "Id": "ThirtyDaysExpirationRule",
+                            "Id": "delete-files-after-30-days",
+                            "NoncurrentVersionExpiration": {
+                                "NewerNoncurrentVersions": 0,
+                                "NoncurrentDays": 30
+                            },
                             "Status": "Enabled"
                         },
                         {
                             "AbortIncompleteMultipartUpload": {
                                 "DaysAfterInitiation": 7
                             },
-                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Id": "delete-incomplete-multipart-uploads",
                             "Status": "Enabled"
                         },
                         {
-                            "Id": "TaggedObjectsGlacierTransitionRule",
+                            "Id": "send-tagged-objects-to-glacier",
                             "Status": "Enabled",
                             "TagFilters": [
                                 {
@@ -136,13 +140,13 @@
                             ],
                             "Transitions": [
                                 {
-                                    "StorageClass": "GLACIER",
+                                    "StorageClass": "DEEP_ARCHIVE",
                                     "TransitionInDays": 0
                                 }
                             ]
                         },
                         {
-                            "Id": "CopiedObjectsGlacierTransitionRule",
+                            "Id": "send-objects-copied-to-open-data-account-to-glacier",
                             "Status": "Enabled",
                             "TagFilters": [
                                 {
@@ -152,7 +156,7 @@
                             ],
                             "Transitions": [
                                 {
-                                    "StorageClass": "GLACIER",
+                                    "StorageClass": "DEEP_ARCHIVE",
                                     "TransitionInDays": 1
                                 }
                             ]
@@ -266,14 +270,14 @@
                     "Rules": [
                         {
                             "ExpirationInDays": 30,
-                            "Id": "ThirtyDaysExpirationRule",
+                            "Id": "expire-object-after-thirty-days",
                             "Status": "Enabled"
                         },
                         {
                             "AbortIncompleteMultipartUpload": {
                                 "DaysAfterInitiation": 7
                             },
-                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Id": "delete-incomplete-multipart-uploads",
                             "Status": "Enabled"
                         }
                     ]
@@ -389,14 +393,14 @@
                     "Rules": [
                         {
                             "ExpirationInDays": 30,
-                            "Id": "ThirtyDaysExpirationRule",
+                            "Id": "expire-object-after-thirty-days",
                             "Status": "Enabled"
                         },
                         {
                             "AbortIncompleteMultipartUpload": {
                                 "DaysAfterInitiation": 7
                             },
-                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Id": "delete-incomplete-multipart-uploads",
                             "Status": "Enabled"
                         }
                     ]
