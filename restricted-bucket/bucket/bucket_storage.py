@@ -70,7 +70,7 @@ CORS = CorsRule(
 )
 
 INTELLIGENT_TIERING_RULE = LifecycleRule(
-    id='AllObjectsToIntelligentTieringRule',
+    id='move-all-objects-to-intelligent-tiering',
     transitions=[
         Transition(
             storage_class=StorageClass.INTELLIGENT_TIERING,
@@ -79,13 +79,14 @@ INTELLIGENT_TIERING_RULE = LifecycleRule(
     ]
 )
 
-THIRTY_DAYS_EXPIRATION_RULE = LifecycleRule(
-    id='ThirtyDaysExpirationRule',
+DELETE_FILES_AFTER_30_DAYS = LifecycleRule(
+    id='delete-files-after-30-days',
     expiration=Duration.days(30),
+    noncurrent_version_expiration=Duration.days(30),
 )
 
 ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
-    id='DeleteIncompleteMultipartUploadRule',
+    id='delete-incomplete-multipart-uploads',
     abort_incomplete_multipart_upload_after=Duration.days(7),
 )
 
@@ -134,7 +135,7 @@ class RestrictedBucketStorage(Stack):
             server_access_logs_bucket=self.restricted_files_logs_bucket,
             versioned=True,
             lifecycle_rules=[
-                THIRTY_DAYS_EXPIRATION_RULE,
+                DELETE_FILES_AFTER_30_DAYS,
                 ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
                 INTELLIGENT_TIERING_RULE,
             ],

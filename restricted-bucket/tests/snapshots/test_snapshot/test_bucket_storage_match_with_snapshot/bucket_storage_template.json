@@ -62,18 +62,21 @@
                     "Rules": [
                         {
                             "ExpirationInDays": 30,
-                            "Id": "ThirtyDaysExpirationRule",
+                            "Id": "delete-files-after-30-days",
+                            "NoncurrentVersionExpiration": {
+                                "NoncurrentDays": 30
+                            },
                             "Status": "Enabled"
                         },
                         {
                             "AbortIncompleteMultipartUpload": {
                                 "DaysAfterInitiation": 7
                             },
-                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Id": "delete-incomplete-multipart-uploads",
                             "Status": "Enabled"
                         },
                         {
-                            "Id": "AllObjectsToIntelligentTieringRule",
+                            "Id": "move-all-objects-to-intelligent-tiering",
                             "Status": "Enabled",
                             "Transitions": [
                                 {
