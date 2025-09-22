@@ -58,6 +58,32 @@
                         }
                     ]
                 },
+                "LifecycleConfiguration": {
+                    "Rules": [
+                        {
+                            "ExpirationInDays": 30,
+                            "Id": "ThirtyDaysExpirationRule",
+                            "Status": "Enabled"
+                        },
+                        {
+                            "AbortIncompleteMultipartUpload": {
+                                "DaysAfterInitiation": 7
+                            },
+                            "Id": "DeleteIncompleteMultipartUploadRule",
+                            "Status": "Enabled"
+                        },
+                        {
+                            "Id": "AllObjectsToIntelligentTieringRule",
+                            "Status": "Enabled",
+                            "Transitions": [
+                                {
+                                    "StorageClass": "INTELLIGENT_TIERING",
+                                    "TransitionInDays": 0
+                                }
+                            ]
+                        }
+                    ]
+                },
                 "LoggingConfiguration": {
                     "DestinationBucketName": {
                         "Ref": "RestrictedFilesLogsBucketE4C14D48"
