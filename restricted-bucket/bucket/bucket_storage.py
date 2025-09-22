@@ -1,4 +1,5 @@
 from aws_cdk import App
+from aws_cdk import Duration
 from aws_cdk import Stack
 from aws_cdk import RemovalPolicy
 
@@ -9,6 +10,9 @@ from aws_cdk.aws_iam import PolicyStatement
 from aws_cdk.aws_s3 import Bucket
 from aws_cdk.aws_s3 import CorsRule
 from aws_cdk.aws_s3 import HttpMethods
+from aws_cdk.aws_s3 import LifecycleRule
+from aws_cdk.aws_s3 import StorageClass
+from aws_cdk.aws_s3 import Transition
 
 from constructs import Construct
 
@@ -65,6 +69,27 @@ CORS = CorsRule(
     max_age=3000,
 )
 
+INTELLIGENT_TIERING_RULE = LifecycleRule(
+    id='move-all-objects-to-intelligent-tiering',
+    transitions=[
+        Transition(
+            storage_class=StorageClass.INTELLIGENT_TIERING,
+            transition_after=Duration.days(0),
+        )
+    ]
+)
+
+DELETE_FILES_AFTER_30_DAYS = LifecycleRule(
+    id='delete-files-after-30-days',
+    expiration=Duration.days(30),
+    noncurrent_version_expiration=Duration.days(30),
+)
+
+ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
+    id='delete-incomplete-multipart-uploads',
+    abort_incomplete_multipart_upload_after=Duration.days(7),
+)
+
 
 def generate_read_access_policy_for_bucket(
         *,
@@ -109,4 +134,9 @@ class RestrictedBucketStorage(Stack):
             removal_policy=RemovalPolicy.RETAIN,
             server_access_logs_bucket=self.restricted_files_logs_bucket,
             versioned=True,
+            lifecycle_rules=[
+                DELETE_FILES_AFTER_30_DAYS,
+                ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE,
+                INTELLIGENT_TIERING_RULE,
+            ],
         )
