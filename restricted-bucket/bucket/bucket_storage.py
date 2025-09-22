@@ -89,6 +89,7 @@ ABORT_INCOMPLETE_MULTIPART_UPLOAD_RULE = LifecycleRule(
     abort_incomplete_multipart_upload_after=Duration.days(7),
 )
 
+
 def generate_read_access_policy_for_bucket(
         *,
         sid: str,
